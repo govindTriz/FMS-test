@@ -148,26 +148,21 @@ describe('Auth Refresh API', () => {
   let adminCookie;
 
   beforeAll(async () => {
-    console.log('🔑 Logging in as superadmin...');
     adminCookie = await loginSuperAdmin();
-    console.log('✅ Got admin cookie:', adminCookie);
 
     // --- Create a new test user ---
-    console.log('👤 Creating a new test user...');
     const res1 = await request(baseURL)
       .post('/api/users/auth/register')
       .send({
         email: `refreshtest_${Date.now()}@example.com`,
         password: 'TempPass123!',
-        role: 'ADMIN',
+        role: 'SUPERVISOR',
         customer_name: 'RefreshTester',
       });
-    console.log('📩 Register response:', res1.status, res1.body);
     expect(res1.status).toBe(201);
     authUser = { ...res1.body, password: 'TempPass123!' };
 
     // --- Login user to get refresh token ---
-    console.log('🔐 Logging in test user...');
     const res2 = await request(baseURL)
       .post('/api/users/auth/login')
       .set("Cookie", adminCookie)
@@ -175,23 +170,17 @@ describe('Auth Refresh API', () => {
       .type('form')
       .send({ username: authUser.email, password: authUser.password });
 
-    console.log('📩 Login response:', res2.status, res2.body);
-    console.log('🍪 Login set-cookie:', res2.headers['set-cookie']);
     expect(res2.status).toBe(200);
     authCookie = res2.headers['set-cookie'];
     refreshCookie = authCookie.find(c => c.includes('refresh'));
-    console.log('✅ Extracted refreshCookie:', refreshCookie);
     expect(refreshCookie).toBeDefined();
   });
 
   test('AUTH-REFRESH-001: Refresh success with valid refresh cookie', async () => {
-    console.log('🔄 Refreshing token with valid cookie...');
     const res = await request(baseURL)
       .post('/api/users/auth/refresh')
       .set("Cookie", authCookie);
 
-    console.log('📩 Refresh response:', res.status, res.body);
-    console.log('🍪 Refresh set-cookie:', res.headers['set-cookie']);
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty('access_token');
     expect(res.headers['set-cookie']).toEqual(
@@ -203,44 +192,36 @@ describe('Auth Refresh API', () => {
   });
 
   test('AUTH-REFRESH-002: Missing refresh token', async () => {
-    console.log('🚫 Refresh without cookie...');
     const res = await request(baseURL)
       .post('/api/users/auth/refresh');
 
-    console.log('📩 Missing refresh response:', res.status, res.body);
     expect(res.status).toBe(401);
   });
 
   test('AUTH-REFRESH-003: Invalid/expired refresh token', async () => {
     const fakeCookie = 'refresh=fake.invalid.token';
-    console.log('❌ Refresh with fake cookie:', fakeCookie);
     const res = await request(baseURL)
       .post('/api/users/auth/refresh')
       .set('Cookie', fakeCookie);
 
-    console.log('📩 Invalid refresh response:', res.status, res.body);
     expect(res.status).toBe(401);
   });
 
   test('AUTH-REFRESH-004: User not found for refresh token', async () => {
-    console.log(`🗑️ Deleting user id=${authUser.id}...`);
+    // --- Delete user ---
     const delRes = await request(baseURL)
       .delete(`/api/users/${authUser.id}`)
       .set("Cookie", adminCookie);
-    console.log('📩 Delete user response:', delRes.status);
     expect(delRes.status).toBe(204);
 
-    console.log('🔄 Refresh after deleting user...');
     const res = await request(baseURL)
       .post('/api/users/auth/refresh')
       .set('Cookie', authCookie);
 
-    console.log('📩 Refresh-after-delete response:', res.status, res.body);
     expect(res.status).toBe(401);
     expect(res.body).toEqual({ detail: 'Session expired or invalid' });
   });
 });
-
 
 /* -----------------------------
       AUTH LOGOUT API TESTS
