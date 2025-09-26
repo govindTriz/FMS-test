@@ -5,7 +5,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'; // ignore self-signed certs
 
 async function loginSuperAdmin() {
   const res = await request(baseURL)
-    .post('/api/auth/login')
+    .post('/api/users/auth/login')
     .set('Content-Type', 'application/x-www-form-urlencoded')
     .send('username=admin@example.com&password=secret'); // adjust credsc
 
@@ -22,7 +22,7 @@ describe('Service Accounts API', () => {
 
   test('SVC-TOKEN-001: Generate service token (success)', async () => {
     const res = await request(baseURL)
-      .post('/api/users/service-accounts/token')
+      .post('/api/service-accounts/token')
       .set('Cookie', authCookie) // if required
       .set('Accept', 'application/json');
 
@@ -34,7 +34,7 @@ describe('Service Accounts API', () => {
   test('SVC-TOKEN-002: Idempotent call (new token each time)', async () => {
     
     const res1 = await request(baseURL)
-      .post('/api/users/service-accounts/token')
+      .post('/api/service-accounts/token')
       .set('Cookie', authCookie)
       .set('Accept', 'application/json');
     
