@@ -3,7 +3,7 @@ const request = require("supertest");
 jest.setTimeout(30000);
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"; // allow self-signed certs
 
-const baseURL = "https://192.168.1.220:8443";
+const baseURL = process.env.BASE_URL;
 const applicationsEndpoint = "/api/applications/";
 const versionsEndpoint = "/api/versions/application/";
 const endpoint = "/api/versions";
@@ -120,7 +120,7 @@ it("VER-POST-001: Create version (happy path)", async () => {
    });
  
    it("VER-POST-004: Duplicate version per application", async () => {
-     const payload = { application_id: applicationId, version: "2.0.0" };
+     const payload = { application_id: applicationId, version: "1.0.0" };
      await request(baseURL).post(endpoint).set("Cookie", authCookie).send(payload);
  
      const res = await request(baseURL)
@@ -450,7 +450,7 @@ describe("Versions API - DELETE /versions/{version_id}", () => {
 
     expect(linkedVersionRes.status).toBe(200);
     const linkedVersion = linkedVersionRes.body;
-    
+
     const res = await request(baseURL)
         .delete(`${endpoint}/${linkedVersion.id}`)
         .set("Cookie", authCookie);

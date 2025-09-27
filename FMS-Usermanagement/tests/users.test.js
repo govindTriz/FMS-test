@@ -2,7 +2,7 @@ const request = require('supertest');
 const XLSX = require('xlsx');
 const path = require('path');
 
-const baseURL = 'https://192.168.1.220:8443';
+const baseURL = process.env.BASE_URL;
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'; // ignore self-signed certs
 
 let authCookie;

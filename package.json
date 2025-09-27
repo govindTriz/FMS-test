@@ -4,7 +4,13 @@
     "supertest": "^7.1.4"
   },
   "dependencies": {
+    "dotenv": "^17.2.2",
     "path": "^0.12.7",
     "xlsx": "^0.18.5"
+  },
+  "jest": {
+    "setupFiles": [
+      "<rootDir>/jest.setup.js"
+    ]
   }
 }

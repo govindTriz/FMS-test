@@ -2,7 +2,7 @@ const request = require("supertest");
 jest.setTimeout(30000);
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"; // allow self-signed certs
 
-const baseURL = "https://192.168.1.220:8443";
+const baseURL = process.env.BASE_URL;
 const applicationsEndpoint = "/api/applications";
 const validCustomerId = "f28129bd-e9d9-4c5c-9860-29a7c92bd8a5";
 const versionsEndpoint = "/api/versions";
